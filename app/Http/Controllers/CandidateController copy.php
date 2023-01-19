@@ -16,7 +16,7 @@ class CandidateController extends Controller
      */
     public function index()
     {
-        $candidates = Candidate::with('gender','district','school','course','contacts','province')->get();
+        $candidates = Candidate::with('gender','district','school','course','province')->get();
         return response()->json($candidates);
     }
 
@@ -31,7 +31,7 @@ class CandidateController extends Controller
     
     public function byschool($idSchool)
     {
-        $candidates = Candidate::with('gender','district','school','course','contacts','province')
+        $candidates = Candidate::with('gender','district','school','course','province')
         ->where('candidates.school_id',$idSchool)->get();
         return response()->json($candidates);
     }
@@ -46,7 +46,7 @@ class CandidateController extends Controller
         $idCourses = [1,2];
         $courses = array();
         foreach ($idCourses as $id) {
-            $candidates = Candidate::with('gender','district','school','course','contacts','province')
+            $candidates = Candidate::with('gender','district','school','course','province')
             ->where('candidates.course_id',$id)->where('candidates.school_id',$idSchool)->get();
             $courses[] = $candidates;
         }
@@ -59,67 +59,66 @@ class CandidateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-        public function storeMany(Request $request)
-        {
+    public function storeMany(Request $request)
+    {
 
-            $candidates = array();
-            $repetidos = 0;
-            $registrados = 0;
-        
-            
-            try {
-                foreach ($request->all() as $req) {
-                    $id = null;
-                    $id = isset($req['codigo']) ? $req['codigo'] :  $registrados+1;
-                    $exist = Candidate::where("candidates.id", $id)->exists();   
+        $candidates = array();
+        $repetidos = 0;
+        $registrados = 0;
+    
+        try {
+            foreach ($request->all() as $req) {
+                $id = null;
+                $id = $req['codigo'];    
+                $exist = Candidate::where("candidates.id", $id)->exists();   
+                
+                if($exist){
                     
-                    if($exist){
-                        
+                }else{
+                    $candidate = new Candidate();
+                    $candidate->nome = isset($req['nome']) ? $req['nome'] :  $candidate->nome;
+                    $candidate->id = $id;
+                    $candidate->outrosNomes = isset($req['outrosNomes']) ? $req['outrosNomes'] :  $candidate->outrosNomes;
+                    $candidate->birth_date = isset($req['birth_date']) ? $req['birth_date'] :  $candidate->birth_date;
+                    $candidate->identificacao = isset($req['identificacao']) ? $req['identificacao'] : ($candidate->identificacao ? 1 : 0);
+                    $candidate->gender_id = isset($req['gender_id']) ? $req['gender_id'] : $candidate->gender_id;
+                    $candidate->district_id = isset($req['district_id']) ? $req['district_id'] : $candidate->district_id;
+                    $candidate->school_id = isset($req['school_id']) ? $req['school_id'] : $candidate->school_id;
+                    $candidate->course_id = isset($req['course_id']) ? $req['course_id'] : $candidate->course_id;
+                    $candidate->province_id = isset($req['province_id']) ? $req['province_id'] : $candidate->province_id;
+                    $candidate->isValidated = 1;
+                    $candidate->media_12a = isset($req['media_12a']) ? $req['media_12a'] : $candidate->media_12a;
+                    $candidate->jury_id = isset($req['jury_id']) ? $req['jury_id'] : $candidate->jury_id;
+                    
+                    $search = null;
+                    $search = Candidate::where("candidates.identificacao", $candidate->identificacao)->exists();
+                    if($search){
+                        $repetidos++; 
                     }else{
-                        $candidate = new Candidate();
-                        $candidate->nome = isset($req['nome']) ? $req['nome'] :  $candidate->nome;
-                        $candidate->id = $id;
-                        $candidate->outrosNomes = isset($req['outrosNomes']) ? $req['outrosNomes'] :  $candidate->outrosNomes;
-                        $candidate->birth_date = isset($req['birth_date']) ? $req['birth_date'] :  $candidate->birth_date;
-                        $candidate->identificacao = isset($req['identificacao']) ? $req['identificacao'] : ($candidate->identificacao ? 1 : 0);
-                        $candidate->gender_id = isset($req['gender_id']) ? $req['gender_id'] : $candidate->gender_id;
-                        $candidate->district_id = isset($req['district_id']) ? $req['district_id'] : $candidate->district_id;
-                        $candidate->school_id = isset($req['school_id']) ? $req['school_id'] : $candidate->school_id;
-                        $candidate->course_id = isset($req['course_id']) ? $req['course_id'] : $candidate->course_id;
-                        $candidate->province_id = isset($req['province_id']) ? $req['province_id'] : $candidate->province_id;
-                        $candidate->isValidated = 1;
-                        $candidate->media_12a = isset($req['media_12a']) ? $req['media_12a'] : $candidate->media_12a;
-                        $candidate->jury_id = isset($req['jury_id']) ? $req['jury_id'] : $candidate->jury_id;
-                        
-                        $search = null;
-                        $search = Candidate::where("candidates.identificacao", $candidate->identificacao)->exists();
-                        if($search){
-                            $repetidos++; 
-                        }else{
-                            $registrados++;
-                            $candidate->save();
-                            $contact = new Contact(); 
-                    
-                            if(isset($request['newcontact'])){
-                                $contact->contact = isset($request['newcontact']) ? $request['newcontact'] :  $contact->contact;
-                                $contact->id = isset($request['contact_id']) ? $request['contact_id'] :  null;
-                                $contact->candidate_id = $candidate->id;
-                                $contact->save();
-                            }
-                            $candidate = Candidate::with('gender','district','school','course','contacts','province')->where('candidates.id',$id)->get();
-                            
-                            $candidates[] = $candidate[0];
+                        $registrados++;
+                        $candidate->save();
+                        $contact = new Contact(); 
+                
+                        if(isset($request['newcontact'])){
+                            $contact->contact = isset($request['newcontact']) ? $request['newcontact'] :  $contact->contact;
+                            $contact->id = isset($request['contact_id']) ? $request['contact_id'] :  null;
+                            $contact->candidate_id = $candidate->id;
+                            $contact->save();
                         }
+                        $candidate = Candidate::with('gender','district','school','course','contacts','province')->where('candidates.id',$id)->get();
+                        
+                        $candidates[] = $candidate[0];
                     }
-
                 }
 
-                return response(['msg' => 'Candidates Registered', 'data' => $candidates,
-                'importados' =>$registrados + $repetidos,'registrados' =>$registrados,'repetidos' =>$repetidos], 200);
-            } catch (\Exception $e) {
-                return response(['msg' => $e->getMessage()]);
             }
+
+            return response(['msg' => 'Candidates Registered', 'data' => $candidates,
+            'importados' =>$registrados + $repetidos,'registrados' =>$registrados,'repetidos' =>$repetidos], 200);
+        } catch (\Exception $e) {
+            return response(['msg' => $e->getMessage()]);
         }
+    }
     
     /**
      * Show the form for creating a new resource.
@@ -178,7 +177,7 @@ class CandidateController extends Controller
         try {
             $candidate = new Candidate();
             $id = $this->create($candidate, $request);
-            $candidate = Candidate::with('gender','district','school','course','contacts','province')->where('candidates.id',$id)->get();
+            $candidate = Candidate::with('gender','district','school','course','province')->where('candidates.id',$id)->get();
             
             $mensagem = null;
             if($id){
@@ -201,7 +200,7 @@ class CandidateController extends Controller
      */
     public function show($id)
     {
-        $candidate = Candidate::with('gender','district','school','course','contacts','province')->where('candidates.id',$id)->get();
+        $candidate = Candidate::with('gender','district','school','course','province')->where('candidates.id',$id)->get();
         return response()->json($candidate);
     }
 
@@ -272,7 +271,7 @@ class CandidateController extends Controller
             $candidate = Candidate::findOrFail($id);
             if ($candidate) {
                 $this->create($candidate, $request);
-                $data = $candidate = Candidate::with('gender','district','school','course','contacts','province')->where('candidates.id',$id)->get();
+                $data = $candidate = Candidate::with('gender','district','school','course','province')->where('candidates.id',$id)->get();
                 return response(['msg' => 'Candidate Updated!', 'data' => $data], 200);
             }
 

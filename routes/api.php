@@ -203,6 +203,7 @@ Route::controller(AvaliacaoController::class)->prefix('avaliation')->group(funct
     Route::get('/', 'index')->name('avaliation.index');
     Route::post('/store', 'store')->name('avaliation.store');
     Route::post('/storeMany', 'storeMany')->name('avaliation.storeMany');
+    Route::post('/verify', 'verify')->name('candidate.verify');
     Route::post('/createjury', 'createjury')->name('avaliation.createjury');
     Route::get('/avaliationsByExam/{id}', 'avaliationsByExam')->name('avaliation.show');
     Route::get('/bySchool/{id}', 'bySchool')->name('avaliation.bySchool');
