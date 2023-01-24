@@ -207,6 +207,7 @@ Route::controller(AvaliacaoController::class)->prefix('avaliation')->group(funct
     Route::post('/createjury', 'createjury')->name('avaliation.createjury');
     Route::get('/avaliationsByExam/{id}', 'avaliationsByExam')->name('avaliation.show');
     Route::get('/bySchool/{id}', 'bySchool')->name('avaliation.bySchool');
+    Route::get('/naocorrigidas/{id}', 'naocorrigidas')->name('avaliation.naoCorrigidas');
     Route::get('/pauta/{id}', 'pauta')->name('avaliation.pauta');
     Route::get('/byjury/{id}', 'byjury')->name('avaliation.byjury');
     Route::get('/bycourse/{id}', 'bycourse')->name('avaliation.bycourse');

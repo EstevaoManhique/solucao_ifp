@@ -46,6 +46,57 @@ class AvaliacaoController extends Controller
         return response()->json($avaliacoes);
     }
 
+
+       /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+        /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function naoCorrigidas($id)
+    {
+
+        $avaliacoes = DB::table('candidates')
+        ->join('avaliacoes','candidates.id','=','avaliacoes.candidate_id')->
+        join('schools','candidates.school_id','=','schools.id')->
+        join('courses', 'candidates.course_id','=','courses.id')->
+        select('schools.name as school','schools.cod as ifpcode','candidates.id as codigo', 'candidates.nome','candidates.course_id'
+        ,'courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.entrevista','avaliacoes.id','avaliacoes.school_id','avaliacoes.sinal')
+            ->where('avaliacoes.school_id', '=', $id)
+            ->where(function ($query) {
+                $query->where('avaliacoes.portugues', null)->orWhere('avaliacoes.matematica',null);
+        })
+        ->get();
+
+        foreach ($avaliacoes as $aval) {
+            if($aval->sinal=="A"){
+                $aval->portugues="Anulado/Ausencia";
+                $aval->matematica="Anulado/Ausencia";
+            }else if($aval->sinal=="F"){
+                $aval->portugues="Anulado/Fraude";
+                $aval->matematica="Anulado/Fraude";
+            }else{
+                if($aval->portugues==null){
+                    $aval->portugues="Exame nao Carregado";
+                }else{
+                    $aval->portugues="Exame Carregado";
+                }
+                if($aval->matematica==null){
+                    $aval->matematica="Exame nao Carregado";
+                }else{
+                    $aval->matematica="Exame Carregado";
+                }
+            }
+        }
+
+        return response()->json($avaliacoes);
+    }
+    
+
      
         /**
      * Display a listing of the resource.
