@@ -41,7 +41,7 @@ class AvaliacaoController extends Controller
         join('schools','candidates.school_id','=','schools.id')->
         join('courses', 'candidates.course_id','=','courses.id')->
         select('schools.name as school','schools.cod as ifpcode','candidates.id as codigo', 'candidates.nome','candidates.course_id'
-        ,'courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.entrevista','avaliacoes.id','avaliacoes.school_id')->where('avaliacoes.school_id', $id)->get();
+        ,'courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.entrevista','avaliacoes.id','candidates.school_id')->where('candidates.school_id', $id)->orderBy('candidates.nome','ASC')->get();
         
         return response()->json($avaliacoes);
     }
@@ -347,48 +347,7 @@ class AvaliacaoController extends Controller
     public function storeMany(Request $request)
     {
 
-        $cases = array(
-            "010100001653",
-            "010100001661",
-            "010100001671",
-            "010100001916",
-            "010100001941",
-            "010100001949",
-            "010100002021",
-            "010100002133",
-            "010100002238",
-            "010100002538",
-            "010100002648",
-            "010100002690",
-            "010100002812",
-            "010100002826",
-            "010100003093",
-            "010100003099",
-            "010100003142",
-            "010100003265",
-            "010100003324",
-            "010100003347",
-            "010100003416",
-            "010100003654",
-            "010100003762",
-            "010100003839",
-            "010100003864",
-            "010100004019",
-            "010100004283",
-            "010100004307",
-            "010100004399",
-            "010100004913",
-            "010100004949",
-            "010100004954",
-            "010100004955",
-            "010100004977",
-            "010100005032",
-            "010100005065",
-            "010100005133",
-            "010100005139",
-            "010100004446",
-            "010100001668",
-        );
+    
         $avaliacoes = array();
         try {
             foreach ($request->all() as $req) {
@@ -415,40 +374,25 @@ class AvaliacaoController extends Controller
                     $avaliacao = Avaliacao::findOrFail($avalId);
                     $avalId = null;
                 }
-                
-                if($candidate->school_id!=117){
-                    $avaliacao->portugues = isset($req['portugues']) ? $req['portugues'] : $portugues;
-                    $avaliacao->matematica = isset($req['matematica']) ? $req['matematica'] : $matematica;
-                    //$avaliacao->entrevista = isset($req['entrevista']) ? $req['entrevista'] : $entrevista;
-                    $avaliacao->candidate_id = isset($req['candidate_id']) ? $req['candidate_id'] : $candidate_id;
-                    $avaliacao->school_id = $candidate->school_id;
-                    $avaliacao->save();
-                }else{
-                    for ($i=0; $i <count($cases)-1 ; $i++) {
-                        $avaliacao->candidate_id = isset($req['candidate_id']) ? $req['candidate_id'] : $candidate_id;
-                        if($cases[$i]==$avaliacao->candidate_id){
-                            $avaliacao->portugues = rand(14,18);
-                            $avaliacao->matematica = rand(13,16);;
-                            //$avaliacao->entrevista = 15;
-                            $avaliacao->candidate_id = isset($req['candidate_id']) ? $req['candidate_id'] : $candidate_id;
-                            $avaliacao->school_id = $candidate->school_id;
-                            $avaliacao->save();
-                        }else{
-                            $avaliacao->portugues = isset($req['portugues']) ? $req['portugues'] : $portugues;
-                            $avaliacao->matematica = isset($req['matematica']) ? $req['matematica'] : $matematica;
+              
+
+                            $avaliacao->portugues = isset($portugues) ? $portugues : $req['portugues'];
+                            $avaliacao->matematica = isset($matematica) ? $matematica : $req['matematica'];
                             //$avaliacao->entrevista = isset($req['entrevista']) ? $req['entrevista'] : $entrevista;
                             $avaliacao->candidate_id = isset($req['candidate_id']) ? $req['candidate_id'] : $candidate_id;
                             $avaliacao->school_id = $candidate->school_id;
                             $avaliacao->save();
-                        }
-                    }
-                }
-                
-                $avaliacao = Avaliacao::with('candidate')->findOrFail($avaliacao->id);
-
-                $avaliacoes[] = $avaliacao;
+                            
+                            /*$avaliacao->portugues = isset($req['portugues']) ? $req['portugues'] : $portugues;
+                            $avaliacao->matematica = isset($req['matematica']) ? $req['matematica'] : $matematica;
+                            //$avaliacao->entrevista = isset($req['entrevista']) ? $req['entrevista'] : $entrevista;
+                            $avaliacao->candidate_id = isset($req['candidate_id']) ? $req['candidate_id'] : $candidate_id;
+                            $avaliacao->school_id = $candidate->school_id;
+                            $avaliacao->save();*/
+                        //}
             }
-            return response(['msg' => 'Avaliation Registered', 'data' => $avaliacoes], 200);
+               
+            return response(['msg' => 'Avaliation Registered'], 200);
         } catch (\Exception $e) {
             return response(['msg' => $e->getMessage()]);
         }

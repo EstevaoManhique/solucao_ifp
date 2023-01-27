@@ -16,7 +16,22 @@ class CandidateController extends Controller
      */
     public function index()
     {
-        $candidates = Candidate::with('gender','district','school','course','contacts','province')->get();
+        $candidates = Candidate::with('gender','district','school','course','contacts','province')->orderBy('nome','ASC')->get();
+
+            $trocou = true;
+            while ($trocou):
+                $trocou = false;
+                for ($i = 0; $i < count($candidates) - 1; $i++) {
+                    if (($candidates[$i]->nome < $candidates[$i + 1]->nome)) {
+                        $ajudante = $candidates[$i];
+                        $candidates[$i] = $candidates[$i + 1];
+                        $candidates[$i + 1] = $ajudante;
+                        $trocou = true;
+                    }
+                }
+            endwhile;
+        
+
         return response()->json($candidates);
     }
 
@@ -32,7 +47,7 @@ class CandidateController extends Controller
     public function byschool($idSchool)
     {
         $candidates = Candidate::with('gender','district','school','course','contacts','province')
-        ->where('candidates.school_id',$idSchool)->get();
+        ->where('candidates.school_id',$idSchool)->orderBy('nome','ASC')->get();
         return response()->json($candidates);
     }
     
