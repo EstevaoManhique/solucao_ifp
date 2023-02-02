@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Candidate;
+use App\Models\Avaliacao;
 use App\Models\Contact;
 use App\Models\Jury;
 use Haruncpi\LaravelIdGenerator\IdGenerator;
@@ -238,6 +239,8 @@ class CandidateController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function createjury(Request $request){
+
+
         try {            
             $candidate = new Candidate();
             $jurys = array();
@@ -245,8 +248,9 @@ class CandidateController extends Controller
             $courses = $request->all();
             $jurybycourse = array();
             foreach ($courses as $course) {
-                $coursename = $course[0][0]['course']['description'];
-                $ifpcode = $course[0][0]['school']['cod'];
+                
+                $coursename = $course[0][0]['course'];
+                $ifpcode = $course[0][0]['ifpcode'];
                 $jurys = null;
                 
                 foreach($course as $candidates){
@@ -258,10 +262,10 @@ class CandidateController extends Controller
                     $juri = null;
                     foreach($candidates as $candidate){
                         
-                        $candidate = Candidate::findOrFail($candidate['id']);
-                        $candidate->jury_id = $jury->id;
-                        $candidate->save();
-                        $juri[] = $candidate;
+                        $avaliacao = Avaliacao::findOrFail($candidate['id']);
+                        $avaliacao->jury_id = $jury->id;
+                        $avaliacao->save();
+                        $juri[] = $avaliacao;
                     
                     }
                     $jurys [] = $juri;

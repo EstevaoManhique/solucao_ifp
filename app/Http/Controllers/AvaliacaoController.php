@@ -41,7 +41,7 @@ class AvaliacaoController extends Controller
         join('schools','candidates.school_id','=','schools.id')->
         join('courses', 'candidates.course_id','=','courses.id')->
         select('schools.name as school','schools.cod as ifpcode','candidates.id as codigo', 'candidates.nome','candidates.course_id'
-        ,'courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.entrevista','avaliacoes.id','candidates.school_id')->where('candidates.school_id', $id)->orderBy('candidates.nome','ASC')->get();
+        ,'courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.entrevista','avaliacoes.id','candidates.school_id')->where('candidates.school_id', $id)->limit(7000)->orderBy('candidates.nome','ASC')->get();
         
         return response()->json($avaliacoes);
     }
@@ -137,8 +137,6 @@ class AvaliacaoController extends Controller
             $avaliacao->idade = $idade;
             $idade = $idade + 1;
         }
-
-
 
         if (count($femenino) > 1) {
             $trocou = true;
@@ -261,14 +259,14 @@ class AvaliacaoController extends Controller
 
     public function byjury($id)
     {
-        $avaliacao = DB::table('candidates')
+        $avaliacoes = DB::table('candidates')
         ->join('avaliacoes','candidates.id','=','avaliacoes.candidate_id')->
         join('schools','candidates.school_id','=','schools.id')->
         join('courses', 'candidates.course_id','=','courses.id')->
         select('schools.name as school','schools.cod as ifpcode','candidates.id as codigo', 'candidates.nome','candidates.course_id'
-        ,'courses.description as coursename','avaliacoes.entrevista','avaliacoes.id','avaliacoes.school_id')->where('avaliacoes.jury_id', $id)->get();
+        ,'courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.entrevista','avaliacoes.id','candidates.school_id')->where('avaliacoes.jury_id', $id)->limit(7000)->orderBy('candidates.nome','ASC')->get();
         
-        return response()->json($avaliacao);
+        return response()->json($avaliacoes);
     }
 
     public function bycourse($idSchool)
@@ -281,8 +279,9 @@ class AvaliacaoController extends Controller
             ->join('avaliacoes','candidates.id','=','avaliacoes.candidate_id')->
             join('schools','candidates.school_id','=','schools.id')->
             join('courses', 'candidates.course_id','=','courses.id')->
-            select('schools.name as school','candidates.id as codigo', 'candidates.nome','candidates.course_id'
-            ,'schools.cod as ifpcode','courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.id','avaliacoes.school_id')->where('candidates.school_id',$idSchool)->where('candidates.course_id', $id)->get();
+            select('schools.name as school','candidates.id as codigo','candidates.jury_id','courses.description as course', 'candidates.nome','candidates.course_id'
+            ,'schools.cod as ifpcode','courses.description as coursename','avaliacoes.portugues','avaliacoes.matematica','avaliacoes.id','candidates.school_id')->where('candidates.school_id',$idSchool)
+            ->where('candidates.course_id', $id)->limit(7000)->orderBy('candidates.nome','ASC')->get();
             $courses[] = $avaliacoes;
         }
         return response()->json($courses);
@@ -376,19 +375,19 @@ class AvaliacaoController extends Controller
                 }
               
 
-                            $avaliacao->portugues = isset($portugues) ? $portugues : $req['portugues'];
+                            /*$avaliacao->portugues = isset($portugues) ? $portugues : $req['portugues'];
                             $avaliacao->matematica = isset($matematica) ? $matematica : $req['matematica'];
                             //$avaliacao->entrevista = isset($req['entrevista']) ? $req['entrevista'] : $entrevista;
                             $avaliacao->candidate_id = isset($req['candidate_id']) ? $req['candidate_id'] : $candidate_id;
                             $avaliacao->school_id = $candidate->school_id;
-                            $avaliacao->save();
+                            $avaliacao->save();*/
                             
-                            /*$avaliacao->portugues = isset($req['portugues']) ? $req['portugues'] : $portugues;
+                            $avaliacao->portugues = isset($req['portugues']) ? $req['portugues'] : $portugues;
                             $avaliacao->matematica = isset($req['matematica']) ? $req['matematica'] : $matematica;
                             //$avaliacao->entrevista = isset($req['entrevista']) ? $req['entrevista'] : $entrevista;
                             $avaliacao->candidate_id = isset($req['candidate_id']) ? $req['candidate_id'] : $candidate_id;
                             $avaliacao->school_id = $candidate->school_id;
-                            $avaliacao->save();*/
+                            $avaliacao->save();
                         //}
             }
                
